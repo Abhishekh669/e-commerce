@@ -1,0 +1,32 @@
+"use client"
+import { useVerifyUserToken } from '@/lib/hooks/tanstack-query/query-hook/user/useGetUserFromToken'
+import { useUserStore } from '@/lib/store/user-store';
+import React, { useEffect, useMemo } from 'react'
+
+function UserStoreWrapper({ children }: { children: React.ReactNode }) {
+    const { data, isLoading } = useVerifyUserToken();
+    const { setUser, user } = useUserStore();
+    const shouldUpdateUser = useMemo(() => {
+        if (!data || data.error) return false;
+        if (!user || user.id !== data.user.id) return true;
+        return false;
+    }, [data, user]);
+
+
+    useEffect(() => {
+        if (isLoading) return;
+        if (shouldUpdateUser) {
+            setUser(data.user);
+        } else if (data?.error) {
+            setUser(undefined);
+        }
+    }, [isLoading, shouldUpdateUser, data, setUser]);
+
+    return (
+        <>
+            {children}
+        </>
+    )
+}
+
+export default UserStoreWrapper

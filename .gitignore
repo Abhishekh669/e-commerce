@@ -1,0 +1,100 @@
+# =========================================================
+# 🧩 Common system and editor files
+# =========================================================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.lock
+
+# IDEs and editor settings
+.vscode/
+.idea/
+*.iml
+
+# =========================================================
+# ⚛️ Next.js frontend (e-commerce-frontend)
+# =========================================================
+e-commerce-frontend/node_modules/
+e-commerce-frontend/.next/
+e-commerce-frontend/out/
+e-commerce-frontend/build/
+e-commerce-frontend/dist/
+e-commerce-frontend/.vercel/
+e-commerce-frontend/.turbo/
+
+# Environment files
+e-commerce-frontend/.env
+e-commerce-frontend/.env.local
+e-commerce-frontend/.env.development.local
+e-commerce-frontend/.env.test.local
+e-commerce-frontend/.env.production.local
+
+# Logs and coverage
+e-commerce-frontend/npm-debug.log*
+e-commerce-frontend/yarn-debug.log*
+e-commerce-frontend/yarn-error.log*
+e-commerce-frontend/coverage/
+e-commerce-frontend/.nyc_output/
+
+# =========================================================
+# 🐹 Go backend (e-commerce-backend)
+# =========================================================
+# Binaries and build output
+e-commerce-backend/bin/
+e-commerce-backend/build/
+e-commerce-backend/dist/
+e-commerce-backend/tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Object files and caches
+*.o
+*.a
+
+# Go modules & vendor
+e-commerce-backend/vendor/
+e-commerce-backend/coverage.out
+
+# Config and environment
+e-commerce-backend/.env
+e-commerce-backend/config.yaml
+e-commerce-backend/config.json
+e-commerce-backend/config.local.*
+e-commerce-backend/.air.toml
+
+# =========================================================
+# 🧪 General environment & secrets
+# =========================================================
+.env
+.env.*
+!example.env
+
+# =========================================================
+# 🚀 Deployment
+# =========================================================
+# Ignore local Docker, if used
+docker-compose.override.yml
+*.local.yml
+
+# Logs and runtime data
+logs/
+tmp/
+*.pid
+*.seed
+*.log
+
+# =========================================================
+# 🧰 Miscellaneous
+# =========================================================
+# OS-generated files
+ehthumbs.db
+Desktop.ini
