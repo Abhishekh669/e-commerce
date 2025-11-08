@@ -216,8 +216,11 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 
 func (h *OrderHandler) GetSellerProducts(c *gin.Context) {
 	// Get seller ID from context (sellers are users with a specific role)
+	fmt.Println("iamhereforsellerproducts")
 	sellerId, _, _, ok := middleware.GetUserFromContext(c)
+	fmt.Println("this is seeler id : ", sellerId)
 	if !ok {
+		fmt.Println("error in geting data")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Seller not authenticated", "success": false})
 		return
 	}
@@ -229,6 +232,7 @@ func (h *OrderHandler) GetSellerProducts(c *gin.Context) {
 	// Get seller products
 	products, total, err := h.service.GetSellerProducts(c, sellerId, page, limit)
 	if err != nil {
+		fmt.Println("this ishte products list : ", products, "or error man : ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
 		return
 	}

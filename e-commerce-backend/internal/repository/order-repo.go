@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"e-commerce.com/internal/db"
@@ -149,40 +150,42 @@ func (r *orderRepo) GetUserOrderDetails(ctx context.Context, userId, orderId str
 func (r *orderRepo) GetSellerOrders(ctx context.Context, sellerId string, skip, limit int, status string) ([]*models.Order, int64, error) {
 	collection := r.mongoClient.Database("ecommerce").Collection("orders")
 
-	// Build filter for seller orders (orders containing seller's products)
-	filter := bson.M{}
+	// Build filter: find orders that contain products with the given sellerId
+	filter := bson.M{
+		"products.sellerId": sellerId, // Match nested product sellerId
+	}
 	if status != "" {
 		filter["status"] = status
 	}
 
-	// Set sort options (newest first)
-	opts := options.Find().SetSort(bson.M{"createdAt": -1})
+	// Count total orders before pagination
+	total, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		fmt.Println("eroror is here so fix me ")
+		return nil, 0, err
+	}
 
-	// Find all orders
+	// Set sort and pagination options
+	opts := options.Find().
+		SetSort(bson.M{"createdAt": -1}).
+		SetSkip(int64(skip)).
+		SetLimit(int64(limit))
+
+	// Query orders
 	cursor, err := collection.Find(ctx, filter, opts)
 	if err != nil {
+		fmt.Println("thierie not data : ':", err)
 		return nil, 0, err
 	}
 	defer cursor.Close(ctx)
 
-	var allOrders []*models.Order
-	err = cursor.All(ctx, &allOrders)
-	if err != nil {
+	var sellerOrders []*models.Order
+	if err = cursor.All(ctx, &sellerOrders); err != nil {
+		fmt.Println("erro in the seting all teh data :',", err)
 		return nil, 0, err
 	}
 
-	// Filter orders that contain seller's products
-	var sellerOrders []*models.Order
-	for _, order := range allOrders {
-		for _, product := range order.Products {
-			if product.SellerID == sellerId {
-				sellerOrders = append(sellerOrders, order)
-				break // Add order once if it contains any seller's product
-			}
-		}
-	}
-
-	return sellerOrders, int64(len(sellerOrders)), nil
+	return sellerOrders, total, nil
 }
 
 func (r *orderRepo) GetSellerOrderDetails(ctx context.Context, sellerId, orderId string) (*models.Order, error) {

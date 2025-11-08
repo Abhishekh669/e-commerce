@@ -13,6 +13,8 @@ type Product struct {
 	Category    interface{} `json:"category" bson:"category"`
 	Images      []string    `json:"images" bson:"images"`
 	Stock       int         `json:"stock" bson:"stock"`
+	Rating      int         `json:"rating" bson:"rating"`
+	RatingCount int         `json:"ratingCount" bson:"ratingCount"`
 	CreatedAt   time.Time   `json:"createdAt" bson:"createdAt"`
 	UpdatedAt   time.Time   `json:"updatedAt" bson:"updatedAt"`
 }
@@ -39,6 +41,7 @@ type CreateProductRequest struct {
 	Category    interface{} `json:"category" bson:"category"`
 	Images      []string    `json:"images" bson:"images"`
 	Stock       int         `json:"stock" bson:"stock"`
+	Rating      int         `json:"rating" bson:"rating"`
 }
 
 type ProductResponse struct {

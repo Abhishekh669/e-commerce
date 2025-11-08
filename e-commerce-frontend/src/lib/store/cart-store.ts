@@ -11,6 +11,7 @@ export interface CartItem {
     category?: string
     brand?: string
     discount?: number
+    rating ?: number;
     sellerId: string // Add seller ID to track which seller the product belongs to
 }
 

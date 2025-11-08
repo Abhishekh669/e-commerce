@@ -32,6 +32,10 @@ type App struct {
 	OrderHandler *handler.OrderHandler
 	OrderService service.OrderService
 	OrderRepo    repository.OrderRepo
+
+	CommentHandler *handler.CommentHandler
+	CommentService service.CommentService
+	CommentRepo    repository.CommentRepo
 }
 
 func New() (*App, error) {
@@ -40,18 +44,21 @@ func New() (*App, error) {
 	productRepo := repository.NewProductRepository()
 	paymentRepo := repository.NewPaymentRepository()
 	orderRepo := repository.NewOrderRepository()
+	commentRepo := repository.NewCommentRepositry()
 
 	// Initialize services
 	userService := service.NewUserService(userRepo)
 	productService := service.NewProductService(productRepo)
 	paymentService := service.NewPaymentService(paymentRepo)
 	orderService := service.NewOrderService(orderRepo, productRepo)
+	commentService := service.NewCommnetService(commentRepo)
 
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userService)
 	productHandler := handler.NewProductHandler(productService)
 	paymentHandler := handler.NewPaymentHandler(paymentService)
 	orderHandler := handler.NewOrderHandler(orderService)
+	comentHandler := handler.NewCommentHandler(commentService)
 
 	return &App{
 		UserRepo:       userRepo,
@@ -66,6 +73,9 @@ func New() (*App, error) {
 		OrderHandler:   orderHandler,
 		OrderService:   orderService,
 		OrderRepo:      orderRepo,
+		CommentRepo:    commentRepo,
+		CommentHandler: comentHandler,
+		CommentService: commentService,
 	}, nil
 }
 

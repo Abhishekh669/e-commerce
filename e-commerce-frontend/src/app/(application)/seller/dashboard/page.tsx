@@ -164,6 +164,9 @@ function SellerDashboard() {
     refetch: refetchProducts 
   } = useGetSellerProducts()
 
+  console.log("thisi shte data of products : ",productsData)
+  console.log("thisi shte eroror fo the products : ",productsError)
+
   // Extract data
   const orders = ordersData?.data?.orders || []
   const products = productsData?.products || []

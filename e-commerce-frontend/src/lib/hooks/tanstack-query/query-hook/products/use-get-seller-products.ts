@@ -33,6 +33,7 @@ interface ProductsResponse {
 export const getSellerProducts = async () => {
     try {
         const user_token = await get_cookies('user_token')
+        console.log("this is hte user token : ",user_token)
         if (!user_token) {
             throw new Error('Authentication required')
         }
@@ -57,6 +58,7 @@ export const getSellerProducts = async () => {
         return data.data
     } catch (error) {
         const errorMessage = getErrorMessage(error);     
+        console.log("thisis hte error in seller products : ",error)
         throw new Error(errorMessage);
     }
 };

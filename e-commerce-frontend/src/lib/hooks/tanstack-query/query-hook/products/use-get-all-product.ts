@@ -1,4 +1,5 @@
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query"
+
 import axios from "axios"
 
 export type Product = {

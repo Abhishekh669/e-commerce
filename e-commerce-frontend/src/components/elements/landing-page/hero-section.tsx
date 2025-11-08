@@ -3,8 +3,10 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export default function Hero() {
+  const router = useRouter()
   return (
     <section className="w-full bg-gray-900 text-white py-20 lg:py-32 px-4 lg:px-14">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -20,7 +22,7 @@ export default function Hero() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-8 py-6 text-base flex items-center gap-2">
+            <Button onClick={()=>router.push("/products")} className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-8 py-6 text-base flex items-center gap-2">
               Shop Now
               <ArrowRight size={20} />
             </Button>

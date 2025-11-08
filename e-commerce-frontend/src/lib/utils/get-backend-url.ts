@@ -3,13 +3,11 @@
 export const getBackEndUrl = async() => {
     let backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     
-    // If no environment variable is set, use default
     if (!backendUrl) {
         backendUrl = "http://localhost:8080";
         console.warn("NEXT_PUBLIC_BACKEND_URL not set, using default:", backendUrl);
     }
     
-    // Ensure the URL has a protocol
     if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
         backendUrl = `http://${backendUrl}`;
         console.warn("Backend URL missing protocol, added http://:", backendUrl);

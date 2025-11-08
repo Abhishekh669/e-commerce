@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, Star } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 const products = [
     {
@@ -12,6 +13,7 @@ const products = [
         rating: 4.8,
         reviews: 324,
         image: "/wireless-headphones.jpg",
+
     },
     {
         id: 2,
@@ -40,6 +42,7 @@ const products = [
 ]
 
 export default function FeaturedProducts() {
+    const router = useRouter();
     return (
         <section className="w-full bg-gray-900 py-16 lg:py-24 px-4 lg:px-14">
             <div className="max-w-6xl mx-auto">
@@ -55,6 +58,7 @@ export default function FeaturedProducts() {
                         <div
                             key={product.id}
                             className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group"
+
                         >
                             <div className="relative overflow-hidden h-64 bg-gray-700">
                                 <Image
@@ -68,7 +72,7 @@ export default function FeaturedProducts() {
                                 </div>
                             </div>
 
-                            <div className="p-4 space-y-3">
+                            <div className="p-4 space-y-3" onClick={()=>router.push("/products")}>
                                 <h3 className="text-white font-semibold text-lg line-clamp-2">{product.name}</h3>
 
                                 <div className="flex items-center gap-1">
@@ -86,7 +90,7 @@ export default function FeaturedProducts() {
 
                                 <div className="flex items-center justify-between pt-2">
                                     <span className="text-2xl font-bold text-yellow-400">{product.price}</span>
-                                    <Button size="sm" className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold">
+                                    <Button onClick={()=>router.push("/products")} size="sm" className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold">
                                         <ShoppingCart size={18} />
                                     </Button>
                                 </div>

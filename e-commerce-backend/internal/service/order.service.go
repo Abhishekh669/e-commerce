@@ -198,7 +198,7 @@ func (s *orderService) DeleteOrder(ctx context.Context, sellerId, orderId string
 func (s *orderService) restoreProductStock(ctx context.Context, products []models.ProductItem) error {
 	for _, item := range products {
 		// Get current product stock
-		product, err := s.productRepo.GetProductByID(ctx, item.ProductID)
+		product, _, err := s.productRepo.GetProductByID(ctx, item.ProductID)
 		if err != nil {
 			fmt.Printf("WARNING: Failed to get product %s: %v\n", item.ProductID, err)
 			continue

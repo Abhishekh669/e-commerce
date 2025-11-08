@@ -282,7 +282,7 @@ func (s *paymentService) CreateOrderFromPayment(ctx context.Context, payment *mo
 	// Get product details for each product ID
 	orderItems := make([]models.ProductItem, 0, len(payment.ProductIDs))
 	for _, productID := range payment.ProductIDs {
-		product, err := s.productRepo.GetProductByID(ctx, productID)
+		product, _, err := s.productRepo.GetProductByID(ctx, productID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get product details: %v", err)
 		}
@@ -373,7 +373,7 @@ type PaymentStatusResponse struct {
 func (s *paymentService) restoreProductStock(ctx context.Context, products []models.ProductItem) error {
 	for _, item := range products {
 		// Get current product stock
-		product, err := s.productRepo.GetProductByID(ctx, item.ProductID)
+		product, _, err := s.productRepo.GetProductByID(ctx, item.ProductID)
 		if err != nil {
 			fmt.Printf("WARNING: Failed to get product %s: %v\n", item.ProductID, err)
 			continue
@@ -394,7 +394,7 @@ func (s *paymentService) restoreProductStock(ctx context.Context, products []mod
 func (s *paymentService) decreaseProductStock(ctx context.Context, orderItems []models.ProductItem) error {
 	for _, item := range orderItems {
 		// Get current product stock
-		product, err := s.productRepo.GetProductByID(ctx, item.ProductID)
+		product, _, err := s.productRepo.GetProductByID(ctx, item.ProductID)
 		if err != nil {
 			fmt.Printf("WARNING: Failed to get product %s: %v\n", item.ProductID, err)
 			continue

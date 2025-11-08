@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Heart, ShoppingCart, Star, ArrowLeft, Package, DollarSign, Calendar, Tag, Minus, Plus, ShoppingBag } from 'lucide-react'
+import { Heart, ShoppingCart, Star, ArrowLeft, Package, DollarSign, Calendar, Tag, Minus, Plus, ShoppingBag, UserMinusIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore } from '@/lib/store/cart-store'
@@ -15,14 +15,14 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { useUserStore } from '@/lib/store/user-store'
-import { CartIcon } from '@/components/ui/cart-icon'
 import { CartDrawer } from '@/components/ui/cart-drawer'
+import { createComment, ProductReviewFromClient } from '@/lib/actions/review/review';
+import { getErrorMessage } from '@/lib/utils/get-error-message';
 
 // Badge component for categories
 const Badge = ({ children, className, variant, ...props }: any) => (
-  <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-    variant === 'secondary' ? 'bg-gray-100 text-gray-800' : 'bg-blue-100 text-blue-800'
-  } ${className}`} {...props}>
+  <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${variant === 'secondary' ? 'bg-gray-100 text-gray-800' : 'bg-blue-100 text-blue-800'
+    } ${className}`} {...props}>
     {children}
   </span>
 )
@@ -30,16 +30,60 @@ const Badge = ({ children, className, variant, ...props }: any) => (
 function ProductByIdPage() {
   const productId = useProductId();
   const router = useRouter();
-  const { data: product, isLoading, isError, error } = useGetProductById(productId);
-  
+  const { data: product, isLoading, isError, error, refetch } = useGetProductById(productId);
+  console.log("this is the product: ", product)
+
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  
+
   const { addItem, getItemQuantity, items } = useCartStore();
   const { user } = useUserStore();
+  const [rating, setRating] = useState(0)
+  const [userComment, setUserComment] = useState("")
+  const [isSubmititng, setSubmitting] = useState(false);
+
+  const handleSubmitReview = async () => {
+    if (!user) {
+      const callbackUrl = encodeURIComponent(`/products/${productId}`);
+      router.push(`/login?callback=${callbackUrl}`);
+      toast.error("Please log in to post a review");
+      return;
+    }
+
+    if (rating === 0) {
+      toast.error("Please select a rating before submitting");
+      return;
+    }
+
+    setSubmitting(true)
+    try {
+      const dataToSend: ProductReviewFromClient = {
+        productId,
+        userId: user.id,
+        userName: user.userName,
+        rating,
+        comment: userComment
+      }
+
+      const res = await createComment(dataToSend)
+      if (res?.success && res?.message) {
+        toast.success(res?.message || "successfully created comment")
+        refetch();
+      } else {
+        throw new Error(getErrorMessage(error) || "failed to create comment")
+      }
+    } catch (error) {
+      error = getErrorMessage(error)
+      toast.error(error as string || "failed to create comment")
+    } finally {
+      setSubmitting(false)
+      setRating(0)
+      setUserComment("")
+    }
+  }
 
   // Helper function to get category string
   const getCategoryString = (category: any): string => {
@@ -141,7 +185,7 @@ function ProductByIdPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    
+
     // Check if user is logged in
     if (!user) {
       // Redirect to login with callback to this product page
@@ -150,13 +194,13 @@ function ProductByIdPage() {
       toast.error('Please log in to add items to cart');
       return;
     }
-    
+
     // Check if product is already in cart
     const existingQuantity = getItemQuantity(product.id);
-    
+
     const categoryStr = getCategoryString(product.category);
     const brandStr = getBrandString(product.brand);
-    
+
     if (existingQuantity > 0) {
       // Update existing item quantity instead of adding new one
       addItem({
@@ -167,7 +211,10 @@ function ProductByIdPage() {
         image: product.images && product.images.length > 0 ? product.images[0] : undefined,
         category: categoryStr,
         brand: brandStr,
-        discount: product.discount
+        discount: product.discount,
+        sellerId: product.sellerId,
+        rating: product.rating,
+
       });
       toast.success(`Quantity updated! Total: ${existingQuantity + quantity}`);
     } else {
@@ -180,7 +227,9 @@ function ProductByIdPage() {
         image: product.images && product.images.length > 0 ? product.images[0] : undefined,
         category: categoryStr,
         brand: brandStr,
-        discount: product.discount
+        discount: product.discount,
+        sellerId: product.sellerId,
+        rating: product.rating,
       });
       toast.success(`${quantity} ${quantity === 1 ? 'item' : 'items'} added to cart!`);
     }
@@ -199,7 +248,7 @@ function ProductByIdPage() {
       toast.error('Please log in to add items to favorites');
       return;
     }
-    
+
     setIsLiked(!isLiked);
     toast.success(isLiked ? 'Removed from favorites' : 'Added to favorites');
   };
@@ -220,12 +269,12 @@ function ProductByIdPage() {
 
   const renderCategoryBadges = () => {
     if (!product?.category) return null;
-    
+
     // Debug logging to see the actual category structure
     console.log('Category data:', product.category);
     console.log('Category type:', typeof product.category);
     console.log('Category is array:', Array.isArray(product.category));
-    
+
     if (Array.isArray(product.category)) {
       return product.category.map((item: any, index: number) => {
         if (item && typeof item === 'object') {
@@ -332,13 +381,22 @@ function ProductByIdPage() {
         </Badge>
       );
     }
-    
+
     // Final fallback - show the raw value for debugging
     return (
       <Badge variant="secondary" className="mr-2 mb-2">
         {typeof product.category === 'object' ? JSON.stringify(product.category) : String(product.category)}
       </Badge>
     );
+  };
+
+  // Format date for reviews
+  const formatReviewDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   if (isLoading) {
@@ -367,7 +425,7 @@ function ProductByIdPage() {
   }
 
   const cartQuantity = getItemQuantity(product.id);
-  const discountedPrice = product.discount > 0 
+  const discountedPrice = product.discount > 0
     ? Math.round(product.price * (1 - product.discount / 100))
     : product.price;
 
@@ -390,10 +448,10 @@ function ProductByIdPage() {
             <p className="text-gray-600">Product Details</p>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="icon"
             onClick={toggleLike}
             className={cn(
@@ -403,18 +461,18 @@ function ProductByIdPage() {
           >
             <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
           </Button>
-          
+
           {/* Cart Icon */}
           <div className="relative">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
               onClick={() => setIsCartOpen(true)}
               className="h-10 w-10"
             >
               <ShoppingBag className="h-5 w-5" />
             </Button>
-            
+
             {/* Cart Badge */}
             {getTotalCartItems() > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
@@ -456,7 +514,7 @@ function ProductByIdPage() {
                     <Package className="h-16 w-16 text-gray-400" />
                   </div>
                 )}
-                
+
                 {/* Discount Badge */}
                 {product.discount > 0 && (
                   <div className="absolute top-2 left-2 bg-red-500 text-white text-sm px-2 py-1 rounded">
@@ -464,7 +522,7 @@ function ProductByIdPage() {
                   </div>
                 )}
               </div>
-              
+
               {/* Thumbnail Gallery */}
               {hasImages && product.images.length > 1 && (
                 <div className="grid grid-cols-5 gap-2">
@@ -474,8 +532,8 @@ function ProductByIdPage() {
                       onClick={() => handleImageSelect(index)}
                       className={cn(
                         "aspect-square relative rounded overflow-hidden bg-gray-50 border-2 transition-all duration-200",
-                        selectedImageIndex === index 
-                          ? "border-blue-500 ring-2 ring-blue-200" 
+                        selectedImageIndex === index
+                          ? "border-blue-500 ring-2 ring-blue-200"
                           : "border-gray-200 hover:border-gray-300"
                       )}
                     >
@@ -536,8 +594,8 @@ function ProductByIdPage() {
                         key={i}
                         className={cn(
                           "h-4 w-4",
-                          i < (product.rating || 4) 
-                            ? "text-yellow-400 fill-current" 
+                          i < (product.rating || 0)
+                            ? "text-yellow-400 fill-current"
                             : "text-gray-300"
                         )}
                       />
@@ -551,14 +609,14 @@ function ProductByIdPage() {
                 {/* Quantity Selector */}
                 <div className="space-y-2">
                   <Label htmlFor="quantity">Quantity</Label>
-                  
+
                   {/* Show current cart quantity if product exists in cart */}
                   {getItemQuantity(product.id) > 0 && (
                     <div className="text-sm text-blue-600 font-medium mb-2">
                       Current in cart: {getItemQuantity(product.id)} {getItemQuantity(product.id) === 1 ? 'item' : 'items'}
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -591,14 +649,14 @@ function ProductByIdPage() {
                 </div>
 
                 {/* Add to Cart Button */}
-                <Button 
+                <Button
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
                   className="w-full h-12 text-lg"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  {product.stock === 0 ? 'Out of Stock' : 
-                   getItemQuantity(product.id) > 0 ? 'Update Cart Quantity' : 'Add to Cart'}
+                  {product.stock === 0 ? 'Out of Stock' :
+                    getItemQuantity(product.id) > 0 ? 'Update Cart Quantity' : 'Add to Cart'}
                 </Button>
 
                 {/* Cart Quantity Indicator */}
@@ -640,7 +698,7 @@ function ProductByIdPage() {
               <div className="flex flex-wrap">
                 {renderCategoryBadges()}
               </div>
-              
+
               {/* Debug info - remove this after fixing */}
               {process.env.NODE_ENV === 'development' && (
                 <div className="mt-4 p-3 bg-gray-100 rounded text-xs">
@@ -675,7 +733,7 @@ function ProductByIdPage() {
                     </span>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
+                    <Button
                       onClick={() => setIsCartOpen(true)}
                       className="flex-1"
                       variant="outline"
@@ -683,10 +741,10 @@ function ProductByIdPage() {
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       View Cart
                     </Button>
-                    <Button 
+                    <Button
                       onClick={() => router.push('/products/checkout')}
                       className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                    > 
+                    >
                       Checkout
                     </Button>
                   </div>
@@ -723,8 +781,130 @@ function ProductByIdPage() {
         </div>
       </div>
 
+      {/* Reviews Section */}
+      <div className="mt-8">
+        {/* Leave a Review Card */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-400" />
+              Leave a Review
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {user ? (
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-gray-700 text-sm font-medium">Your Rating</Label>
+                  <div className="flex items-center gap-2 mt-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        onClick={() => setRating(i + 1)}
+                        className={cn(
+                          "h-7 w-7 cursor-pointer transition-all duration-150",
+                          i < rating
+                            ? "text-yellow-400 fill-yellow-400 scale-110"
+                            : "text-gray-300 hover:text-yellow-300 hover:scale-110"
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="comment" className="text-gray-700 text-sm font-medium">
+                    Your Comment
+                  </Label>
+                  <textarea
+                    id="comment"
+                    value={userComment}
+                    onChange={(e) => setUserComment(e.target.value)}
+                    rows={3}
+                    className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    placeholder="Share your thoughts about this product..."
+                  />
+                </div>
+
+                <Button
+                  onClick={handleSubmitReview}
+                  disabled={isSubmititng}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {isSubmititng ? "Submitting..." : "Submit Review"}
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                <p>
+                  Please{" "}
+                  <Link href="/login" className="text-blue-600 hover:underline">
+                    log in
+                  </Link>{" "}
+                  to leave a review.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Display Existing Reviews */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-400" />
+              Customer Reviews
+              {product.reviews && product.reviews.length > 0 && (
+                <span className="text-sm font-normal text-gray-500">
+                  ({product.reviews.length} {product.reviews.length === 1 ? 'review' : 'reviews'})
+                </span>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {product.reviews && product.reviews.length > 0 ? (
+              <div className="space-y-6">
+                {product.reviews.map((review: any) => (
+                  <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-gray-900">{review.userName}</span>
+                          <div className="flex items-center">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={cn(
+                                  "h-4 w-4",
+                                  i < review.rating
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-300"
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {formatReviewDate(review.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Cart Drawer */}
-      <CartDrawer 
+      <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
       />

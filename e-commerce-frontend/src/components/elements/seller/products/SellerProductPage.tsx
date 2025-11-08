@@ -46,6 +46,7 @@ interface Product {
   category: Record<string, string>
   images: string[]
   stock: number
+  rating : number;
   createdAt: string
   updatedAt: string
 }

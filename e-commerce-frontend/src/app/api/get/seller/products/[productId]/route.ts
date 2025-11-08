@@ -43,8 +43,10 @@ export async function GET(request: Request, { params }: { params: { productId: s
                 status: 400
             })
         }
+        console.log("thisis hte reviews : ",data)
         return NextResponse.json({
             product: data.product,
+            reviews : data.reviews,
             success: true
         }, {
             status: 200

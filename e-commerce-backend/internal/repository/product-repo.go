@@ -19,9 +19,8 @@ type ProductRepo interface {
 	GetSellerProducts(ctx context.Context, sellerId string, page int, limit int) ([]*models.Product, int64, bool, error)
 	UpdateProduct(ctx context.Context, productId string, product *models.UpdateProductRequest) error
 	DeleteProduct(ctx context.Context, productId string) error
-	GetProductById(ctx context.Context, productId string) (*models.Product, error)
+	GetProductByID(ctx context.Context, productId string) (*models.Product, []models.ProductReview, error)
 	GetAllProducts(ctx context.Context, search *string, limit, offset int) (*models.ProductResponse, error)
-	GetProductByID(ctx context.Context, productId string) (*models.Product, error)
 	UpdateProductStock(ctx context.Context, sellerId, productId string, stock int) error
 }
 
@@ -122,17 +121,6 @@ func (r *productRepo) GetAllProducts(ctx context.Context, search *string, limit,
 	return &productResponse, nil
 }
 
-func (r *productRepo) GetProductById(ctx context.Context, productId string) (*models.Product, error) {
-	collection := r.mongoClient.Database("ecommerce").Collection("products")
-	filter := bson.M{"_id": productId}
-	var product models.Product
-	err := collection.FindOne(ctx, filter).Decode(&product)
-	if err != nil {
-		return nil, err
-	}
-	return &product, nil
-}
-
 func (r *productRepo) UpdateProduct(ctx context.Context, productId string, product *models.UpdateProductRequest) error {
 	collection := r.mongoClient.Database("ecommerce").Collection("products")
 	filter := bson.M{"_id": productId}
@@ -227,15 +215,34 @@ func (r *productRepo) GetSellerProducts(ctx context.Context, sellerId string, pa
 	return products, total, hasMore, nil
 }
 
-func (r *productRepo) GetProductByID(ctx context.Context, productId string) (*models.Product, error) {
+func (r *productRepo) GetProductByID(ctx context.Context, productId string) (*models.Product, []models.ProductReview, error) {
 	collection := r.mongoClient.Database("ecommerce").Collection("products")
+	commentCollection := r.mongoClient.Database("ecommerce").Collection("comments")
+
 	filter := bson.M{"_id": productId}
+	commentFilter := bson.M{"productId": productId}
+
 	var product models.Product
-	err := collection.FindOne(ctx, filter).Decode(&product)
-	if err != nil {
-		return nil, err
+	var comments []models.ProductReview
+
+	// 1️⃣ Get the product
+	if err := collection.FindOne(ctx, filter).Decode(&product); err != nil {
+		return nil, nil, err
 	}
-	return &product, nil
+
+	// 2️⃣ Get all comments for the product
+	cursor, err := commentCollection.Find(ctx, commentFilter)
+	if err != nil {
+		return &product, nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// 3️⃣ Decode all comments (can be empty — not an error)
+	if err := cursor.All(ctx, &comments); err != nil {
+		return &product, nil, err
+	}
+
+	return &product, comments, nil
 }
 
 func (r *productRepo) UpdateProductStock(ctx context.Context, sellerId, productId string, stock int) error {

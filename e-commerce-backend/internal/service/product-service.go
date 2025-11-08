@@ -14,7 +14,7 @@ type ProductService interface {
 	GetSellerProducts(ctx context.Context, sellerId string, page int, limit int) ([]*models.Product, int64, bool, error)
 	UpdateProduct(ctx context.Context, productId string, product *models.UpdateProductRequest) error
 	DeleteProduct(ctx context.Context, productId string) error
-	GetProductById(ctx context.Context, productId string) (*models.Product, error)
+	GetProductById(ctx context.Context, productId string) (*models.Product, []models.ProductReview, error)
 	GetAllProducts(ctx context.Context, search *string, limit, offset int) (*models.ProductResponse, error)
 }
 
@@ -22,8 +22,9 @@ type productService struct {
 	repo repository.ProductRepo
 }
 
-func (s *productService) GetProductById(ctx context.Context, productId string) (*models.Product, error) {
-	return s.repo.GetProductById(ctx, productId)
+func (s *productService) GetProductById(ctx context.Context, productId string) (*models.Product, []models.ProductReview, error) {
+	return s.repo.GetProductByID(ctx, productId)
+
 }
 
 func (s *productService) UpdateProduct(ctx context.Context, productId string, product *models.UpdateProductRequest) error {
@@ -50,6 +51,7 @@ func (s *productService) CreateProduct(ctx context.Context, product *models.Crea
 		Category:    product.Category,
 		Images:      product.Images,
 		Stock:       product.Stock,
+		Rating:      0,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}

@@ -116,12 +116,14 @@ func (h *ProductHandler) GetProductById(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Product ID is required", "success": false})
 		return
 	}
-	product, err := h.service.GetProductById(c, productId)
+	product, reviews, err := h.service.GetProductById(c, productId)
 	if err != nil {
+		fmt.Println("htisi s error man what ot do now ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "success": false})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"product": product, "success": true})
+	fmt.Println("htisis revies in handler: ", reviews)
+	c.JSON(http.StatusOK, gin.H{"product": product, "reviews": reviews, "success": true})
 }
 
 func (h *ProductHandler) GetAllProducts(c *gin.Context) {

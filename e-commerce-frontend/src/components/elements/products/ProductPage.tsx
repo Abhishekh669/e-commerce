@@ -386,7 +386,9 @@ const ProductPage = () => {
             image: product.images && product.images.length > 0 ? product.images[0] : undefined,
             category: categoryStr,
             brand: brandStr,
-            discount: product.discount
+            discount: product.discount,
+            rating : product.rating,
+            sellerId : product.sellerId,
         })
     }
 
@@ -794,7 +796,7 @@ const ProductPage = () => {
                                                     key={`star-${product.id}-${i}`}
                                                     className={cn(
                                                         "h-2.5 w-2.5",
-                                                        i < (product.rating || 4) 
+                                                        i < (product.rating || 0) 
                                                             ? "text-yellow-400 fill-current" 
                                                             : "text-gray-300"
                                                     )}

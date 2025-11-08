@@ -10,8 +10,9 @@ export const getProductById = async (productId: string) => {
         if (!data.success) {
             throw new Error(data.error || 'Failed to fetch product')
         }
+
         
-        return data.product
+        return {...data.product, reviews : data.reviews}
     } catch (error) {
         const errorMessage = getErrorMessage(error);     
         throw new Error(errorMessage);

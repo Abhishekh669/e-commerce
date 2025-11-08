@@ -16,6 +16,7 @@ interface Product {
   category: Record<string, string> | any
   images: string[]
   stock: number
+  rating : number;
   createdAt: string
   updatedAt: string
 }
@@ -91,6 +92,10 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({ product, onVie
                 }}>
                   {product.name}
                 </h3>
+
+                <div>
+                  Rating : {product.rating || 0}
+                </div>
                 
                 {/* Category badges */}
                 <div className="flex flex-wrap gap-1.5 mb-3">
