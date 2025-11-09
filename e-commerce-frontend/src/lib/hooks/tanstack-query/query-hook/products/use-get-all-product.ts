@@ -31,7 +31,7 @@ export type AllProductsResponse = {
 
 // Fetch products from backend
 export const fetchAllProducts = async (params: { limit?: number; offset?: number; search?: string } = {}): Promise<AllProductsResponse> => {
-    const { limit = 12, offset = 0, search = '' } = params;
+    const { limit = 3, offset = 0, search = '' } = params;
     
     const queryParams = new URLSearchParams();
     if (search) {
@@ -45,7 +45,7 @@ export const fetchAllProducts = async (params: { limit?: number; offset?: number
     return res.data;
 }
 
-export const useGetAllProducts = (limit: number = 12, search?: string) => {
+export const useGetAllProducts = (limit: number = 4, search?: string) => {
     return useInfiniteQuery<AllProductsResponse, Error>({
         queryKey: ["get-all-products", search],
         queryFn: ({ pageParam = 0 }) => fetchAllProducts({ 

@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"e-commerce.com/internal/app"
-	"e-commerce.com/internal/handler"
 	"e-commerce.com/internal/middleware"
+	"e-commerce.com/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +38,7 @@ func UserServiceRouter(router *gin.RouterGroup, appConfig *app.App) {
 			return
 		}
 
-		userData := handler.SafeUser{
+		userData := models.SafeUser{
 			ID:         user.ID,
 			Username:   user.Username,
 			Email:      user.Email,

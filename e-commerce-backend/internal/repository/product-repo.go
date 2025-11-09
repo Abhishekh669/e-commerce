@@ -58,6 +58,7 @@ func (r *productRepo) GetAllProducts(ctx context.Context, search *string, limit,
 		"category":    1,
 		"images":      1,
 		"stock":       1,
+		"rating":      1,
 		"createdAt":   1,
 		"updatedAt":   1,
 	}
@@ -117,6 +118,8 @@ func (r *productRepo) GetAllProducts(ctx context.Context, search *string, limit,
 		HasMore:    hasMore,
 		NextOffset: nextOffset,
 	}
+
+	fmt.Println("thisis  prproductreponse : ", productResponse.Products)
 
 	return &productResponse, nil
 }

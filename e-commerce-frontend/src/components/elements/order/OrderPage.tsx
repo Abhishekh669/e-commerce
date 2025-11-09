@@ -28,8 +28,6 @@ import { cn } from "@/lib/utils"
 import toast from "react-hot-toast"
 import { useGetAllUserOrders } from "@/lib/hooks/tanstack-query/query-hook/products/use-get-all-user-orders"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { get_cookies } from "@/lib/utils/get-cookies"
-import { getBackEndUrl } from "@/lib/utils/get-backend-url"
 import { cancelOrder } from "@/lib/actions/order/delete/cancel-order"
 
 // Types for order data

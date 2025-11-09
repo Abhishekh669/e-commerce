@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
         const search = searchParams.get('search')
-        const limit = searchParams.get('limit') || '1000'
+        const limit = searchParams.get('limit') || '4'
         const offset = searchParams.get('offset') || '0'
 
         const backendUrl = await getBackEndUrl()

@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	maxLimit      = 100
+	maxLimit      = 4
 	defaultOffset = 0
 )
 
@@ -128,11 +128,11 @@ func (h *ProductHandler) GetProductById(c *gin.Context) {
 
 func (h *ProductHandler) GetAllProducts(c *gin.Context) {
 	search := c.Query("search")
-	limit := c.DefaultQuery("limit", "1000")
+	limit := c.DefaultQuery("limit", "4")
 	offset := c.DefaultQuery("offset", "0")
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
-		limitInt = 1000
+		limitInt = 4
 	}
 
 	offsetInt, err := strconv.Atoi(offset)
@@ -140,9 +140,11 @@ func (h *ProductHandler) GetAllProducts(c *gin.Context) {
 		offsetInt = defaultOffset
 	}
 
-	if limitInt > 1000 {
-		limitInt = 1000
+	if limitInt > 4 {
+		limitInt = 4
 	}
+
+	fmt.Println("htis are ooffset and limit : ", offsetInt, limitInt)
 
 	products, err := h.service.GetAllProducts(c, &search, limitInt, offsetInt)
 	if err != nil {

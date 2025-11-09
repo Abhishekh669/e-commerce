@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Role string
 
@@ -23,4 +25,14 @@ type User struct {
 type UserLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type SafeUser struct {
+	ID         string    `json:"id"`
+	Username   string    `json:"userName"`
+	Email      string    `json:"email"`
+	Role       Role      `json:"role"`
+	IsVerified bool      `json:"isVerified"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }

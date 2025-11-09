@@ -4,23 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"e-commerce.com/internal/models"
 	"e-commerce.com/internal/service"
 	"e-commerce.com/internal/utils"
 	"github.com/gin-gonic/gin"
 )
-
-type SafeUser struct {
-	ID         string      `json:"id"`
-	Username   string      `json:"userName"`
-	Email      string      `json:"email"`
-	Role       models.Role `json:"role"`
-	IsVerified bool        `json:"isVerified"`
-	CreatedAt  time.Time   `json:"createdAt"`
-	UpdatedAt  time.Time   `json:"updatedAt"`
-}
 
 type UserHandler struct {
 	userService service.UserService
@@ -164,7 +153,7 @@ func (h *UserHandler) GetUserFromToken(c *gin.Context) {
 			return
 		}
 		fmt.Println("this is user data from db : ", userDb)
-		safeUser := SafeUser{
+		safeUser := models.SafeUser{
 			ID:         userDb.ID,
 			Username:   userDb.Username,
 			Email:      userDb.Email,
@@ -181,7 +170,7 @@ func (h *UserHandler) GetUserFromToken(c *gin.Context) {
 		return
 
 	}
-	safeUser := SafeUser{
+	safeUser := models.SafeUser{
 		ID:         userData.ID,
 		Username:   userData.Username,
 		Email:      userData.Email,

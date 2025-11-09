@@ -59,19 +59,7 @@ function Header() {
                 </div>
             </Link>
 
-            {/* Search Bar - Centered */}
-            {/* <div className="flex-1 max-w-2xl mx-4">
-                <div className="flex">
-                    <Input
-                        type="text"
-                        placeholder="Search products..."
-                        className="w-full bg-white text-black placeholder:text-gray-500 rounded-r-none border-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                    <Button className="bg-yellow-500 hover:bg-yellow-600 rounded-l-none">
-                        <Search />
-                    </Button>
-                </div>
-            </div> */}
+            
 
             {/* Right Side: Login & Cart */}
             <div className="flex items-center space-x-6 flex-shrink-0">
@@ -93,7 +81,7 @@ function Header() {
                                 {user.role}
                             </div>
                             <DropdownMenuItem asChild>
-                                <Link href="/profile">Profile</Link>
+                                <Link href="/u/profile">Profile</Link>
                             </DropdownMenuItem>
                             {user.role === "seller" && (
                                 <DropdownMenuItem asChild>
